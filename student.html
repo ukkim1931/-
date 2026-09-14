@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16302C">
+<title>농민 봉기 · 학생 화면</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#E9EFEC; --surface:#FFFFFF; --surface-2:#F3F6F4;
+    --ink:#17211F; --muted:#5D6D68; --line:#D3DEDA; --line-strong:#B6C6C1;
+    --seal:#B3302A; --celadon:#3E9187; --ochre:#8E6512; --ochre-bg:#FBF3E2;
+    --deep:#16302C; --deep-ink:#EAF3F0; --deep-muted:#9FBDB6; --deep-line:#2E4B45;
+    --deep-accent:#8FD6C9; --deep-warn:#E7A79E;
+    --shadow:0 1px 2px rgba(23,33,31,.05), 0 12px 30px -18px rgba(23,33,31,.35);
+    --display:"Gowun Batang", "Nanum Myeongjo", serif;
+    --body:"IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --mono:"IBM Plex Mono", ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#101715; --surface:#19221F; --surface-2:#1F2A27;
+      --ink:#E7EEEA; --muted:#9AAAA4; --line:#2C3A36; --line-strong:#3D4E49;
+      --seal:#E3796C; --celadon:#6CC0B4; --ochre:#D9A94E; --ochre-bg:#241E12;
+      --deep:#0B1413; --deep-ink:#E7EEEA; --deep-muted:#8FA9A3; --deep-line:#28403B;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 14px 34px -20px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#101715; --surface:#19221F; --surface-2:#1F2A27;
+    --ink:#E7EEEA; --muted:#9AAAA4; --line:#2C3A36; --line-strong:#3D4E49;
+    --seal:#E3796C; --celadon:#6CC0B4; --ochre:#D9A94E; --ochre-bg:#241E12;
+    --deep:#0B1413; --deep-ink:#E7EEEA; --deep-muted:#8FA9A3; --deep-line:#28403B;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 14px 34px -20px rgba(0,0,0,.8);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--body);font-weight:300;
+    line-height:1.65;-webkit-font-smoothing:antialiased;word-break:keep-all;
+    min-height:100dvh;display:flex;flex-direction:column}
+
+  /* ---------- 공통 뼈대 ---------- */
+  .topbar{flex:0 0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:10px 16px;border-bottom:1px solid var(--line);background:var(--surface);
+    padding-top:calc(10px + env(safe-area-inset-top))}
+  .topbar[hidden]{display:none}
+  .topbar .who{font-size:13px;color:var(--ink);font-weight:500;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .topbar .who span{color:var(--muted);font-weight:300;font-family:var(--mono);font-size:12px}
+  .dot{margin-left:auto;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.06em;
+    border-radius:3px;padding:3px 8px;border:1px solid var(--line-strong);color:var(--muted);flex:0 0 auto}
+  .dot.ok{color:var(--celadon);border-color:var(--celadon)}
+  .dot.bad{color:var(--seal);border-color:var(--seal)}
+  .dot.demo{color:var(--ochre);border-color:var(--ochre);background:var(--ochre-bg)}
+
+  main{flex:1 1 auto;display:flex;flex-direction:column}
+  .pane{flex:1 1 auto;display:none;flex-direction:column}
+  .pane.on{display:flex}
+  .inner{width:100%;max-width:720px;margin:0 auto;padding:22px 18px 28px;
+    padding-bottom:calc(28px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:18px}
+
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--celadon);font-weight:600}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(22px,5.4vw,28px);
+    margin:0;line-height:1.3;text-wrap:balance}
+  h2{font-family:var(--display);font-weight:700;margin:0;font-size:clamp(20px,5vw,26px);
+    line-height:1.38;text-wrap:balance}
+  p{margin:0}
+  .lede{font-size:14px;color:var(--muted);line-height:1.7}
+
+  .btn{font:500 15px/1 var(--body);color:var(--ink);background:var(--surface-2);
+    border:1px solid var(--line-strong);border-radius:5px;padding:15px 16px;cursor:pointer;
+    font-family:var(--body);text-align:center}
+  .btn:hover{background:var(--surface)}
+  .btn:focus-visible{outline:2px solid var(--celadon);outline-offset:2px}
+  .btn.go{background:var(--celadon);border-color:var(--celadon);color:#FFFFFF;font-weight:500}
+  .btn.go:hover{filter:brightness(1.06);background:var(--celadon)}
+  .btn[disabled]{opacity:.5;cursor:default}
+  .btn.small{font-size:13px;padding:10px 13px}
+  .btn.ghost{background:none;border-color:var(--line)}
+  .linkbtn{background:none;border:0;padding:0;color:var(--celadon);font:400 13px/1.6 var(--body);
+    cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+  .linkbtn:focus-visible{outline:2px solid var(--celadon);outline-offset:2px}
+
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:12.5px;color:var(--muted);letter-spacing:.02em}
+  .field input{font:400 17px/1.4 var(--body);color:var(--ink);background:var(--surface);
+    border:1px solid var(--line-strong);border-radius:5px;padding:14px 13px;width:100%}
+  .field input:focus-visible{outline:2px solid var(--celadon);outline-offset:1px}
+  .field .hint{font-size:11.5px;color:var(--muted);line-height:1.5}
+  .row2{display:grid;grid-template-columns:100px minmax(0,1fr);gap:10px}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:5px;
+    padding:20px 18px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow)}
+  .note{font-size:12.5px;color:var(--muted);line-height:1.6}
+  .err{font-size:13px;color:var(--seal);line-height:1.6;min-height:1.2em}
+  .warnbox{background:var(--ochre-bg);border-left:3px solid var(--ochre);border-radius:0 4px 4px 0;
+    padding:11px 13px;font-size:13px;line-height:1.6;color:var(--ink)}
+
+  /* ---------- 대기 화면 ---------- */
+  .wait .inner{gap:14px;justify-content:center;flex:1 1 auto;text-align:left}
+  .waitmark{display:flex;align-items:center;gap:10px}
+  .pulse{width:9px;height:9px;border-radius:50%;background:var(--celadon);flex:0 0 auto;
+    animation:pulse 1.8s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.25;transform:scale(.82)}50%{opacity:1;transform:scale(1)}}
+  @media (prefers-reduced-motion: reduce){.pulse{animation:none;opacity:.8}}
+  .waitmark span{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--celadon)}
+
+  /* ---------- 문항 화면 (어두운 배경) ---------- */
+  .q{background:var(--deep);color:var(--deep-ink)}
+  .q .inner{gap:16px}
+  .q .qno{font-family:var(--mono);font-weight:500;font-size:12.5px;color:var(--deep-warn);letter-spacing:.04em}
+  .q .setup{font-size:14px;color:var(--deep-muted);line-height:1.75}
+  .q .ask{font-family:var(--display);font-weight:700;margin:0;color:#FFFFFF;
+    font-size:clamp(20px,5vw,26px);line-height:1.42;text-wrap:balance}
+  .q .writein{border:1px dashed var(--deep-line);border-radius:4px;padding:14px 15px;
+    font-size:13.5px;color:var(--deep-muted);line-height:1.75}
+  .q .writein b{color:var(--deep-ink);font-weight:500}
+
+  .opts{display:flex;flex-direction:column;gap:9px}
+  .opt{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;cursor:pointer;
+    border:1px solid var(--deep-line);border-radius:5px;padding:15px 16px;
+    background:rgba(255,255,255,.03);color:var(--deep-ink);font-family:var(--body);
+    transition:border-color .15s,background .15s}
+  .opt:hover{background:rgba(255,255,255,.07)}
+  .opt:focus-visible{outline:2px solid var(--deep-accent);outline-offset:2px}
+  .opt[aria-pressed="true"]{background:rgba(143,214,201,.14);border-color:var(--deep-accent);
+    box-shadow:inset 0 0 0 1px var(--deep-accent)}
+  .opt .k{font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--deep-accent);
+    padding-top:2px;flex:0 0 auto;min-width:2.2em}
+  .opt[aria-pressed="true"] .k{color:#FFFFFF}
+  .opt .t{font-size:15.5px;line-height:1.5;font-weight:400;min-width:0}
+  .opt .t small{display:block;font-size:12.5px;color:var(--deep-muted);margin-top:4px;font-weight:300}
+
+  .reason{display:flex;flex-direction:column;gap:6px}
+  .reason label{font-size:12.5px;color:var(--deep-muted)}
+  .q textarea{font:300 16px/1.7 var(--body);color:var(--deep-ink);background:rgba(255,255,255,.05);
+    border:1px solid var(--deep-line);border-radius:5px;padding:13px;width:100%;resize:vertical;
+    min-height:120px;font-family:var(--body)}
+  .q textarea:focus-visible{outline:2px solid var(--deep-accent);outline-offset:1px}
+  .q textarea.tall{min-height:210px}
+  .q textarea::placeholder{color:var(--deep-muted);opacity:.65}
+  .rlabel{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .counter{font-family:var(--mono);font-size:11px;color:var(--deep-muted);text-align:right;flex:0 0 auto}
+  .counter.over{color:var(--deep-warn)}
+
+  .q .submitrow{display:flex;flex-direction:column;gap:9px;position:sticky;bottom:0;
+    background:linear-gradient(to top, var(--deep) 62%, rgba(0,0,0,0));
+    padding:14px 0 calc(6px + env(safe-area-inset-bottom));margin-top:2px}
+  .q .btn.go{font-size:16px;padding:16px}
+  .q .msg{font-size:13px;color:var(--deep-warn);line-height:1.6;min-height:1.2em}
+  .q .latebox{background:rgba(231,167,158,.12);border-left:3px solid var(--deep-warn);
+    border-radius:0 4px 4px 0;padding:11px 13px;font-size:13px;line-height:1.6;color:var(--deep-ink)}
+  .q .donebox{border:1px solid var(--deep-accent);border-radius:5px;padding:14px 15px;
+    display:flex;flex-direction:column;gap:7px;background:rgba(143,214,201,.10)}
+  .q .donebox .dl{font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--deep-accent)}
+  .q .donebox .dv{font-size:15px;color:#FFFFFF;font-weight:400;line-height:1.5}
+  .q .donebox .dr{font-size:14px;color:var(--deep-muted);line-height:1.7;white-space:pre-wrap}
+
+  /* ---------- 마무리 · 내 답변 ---------- */
+  .mine{display:flex;flex-direction:column;gap:9px}
+  .mrow{border:1px solid var(--line);border-radius:5px;background:var(--surface);
+    padding:13px 15px;display:flex;flex-direction:column;gap:5px}
+  .mrow .mn{font-family:var(--mono);font-size:11.5px;font-weight:500;color:var(--seal)}
+  .mrow .mq{font-size:13px;color:var(--muted);line-height:1.5}
+  .mrow .mc{font-size:15px;font-weight:500;line-height:1.5}
+  .mrow .mr{font-size:14px;line-height:1.7;white-space:pre-wrap}
+  .mrow.empty .mc{color:var(--muted);font-weight:300}
+
+  .footnote{font-size:11.5px;color:var(--muted);line-height:1.6;text-align:center;
+    padding:14px 18px calc(18px + env(safe-area-inset-bottom))}
+  body.qmode{background:var(--deep)}
+  body.qmode .footnote{color:var(--deep-muted)}
+</style>
+</head>
+<body>
+
+<header class="topbar" id="topbar" hidden>
+  <span class="who" id="who"></span>
+  <span class="dot" id="conn">연결 확인 중…</span>
+</header>
+
+<main>
+  <!-- ========== 1. 참여 ========== -->
+  <section class="pane on" id="pane-join">
+    <div class="inner">
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <span class="kicker">중3 역사 · 사회 변화와 농민의 봉기</span>
+        <h1>농민 봉기, 선택 뒤에 남는 이야기</h1>
+        <p class="lede">여덟 개의 상황에서 직접 고르고, 왜 그렇게 골랐는지 적습니다. 선생님 화면을 따라 한 문항씩 진행돼요.</p>
+      </div>
+
+      <div class="card">
+        <div class="field" id="room-field">
+          <label for="in-room">방 번호 (여섯 자리)</label>
+          <input id="in-room" type="text" inputmode="numeric" autocomplete="off"
+                 maxlength="6" placeholder="예: 482913">
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="in-no">출석번호</label>
+            <input id="in-no" type="text" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="12">
+          </div>
+          <div class="field">
+            <label for="in-name">이름</label>
+            <input id="in-name" type="text" autocomplete="off" maxlength="12" placeholder="김역사">
+          </div>
+        </div>
+        <p class="hint note">이름은 <b>출석부와 똑같이</b> 적어 주세요. 선생님 화면에 그대로 뜹니다.</p>
+        <button class="btn go" id="btn-join">참여하기</button>
+        <p class="err" id="join-err"></p>
+      </div>
+
+      <p class="note">수업 중에는 <b>기기를 바꾸지 마세요.</b> 다른 휴대전화나 브라우저로 들어가면 다른 사람으로 잡힙니다.</p>
+    </div>
+  </section>
+
+  <!-- ========== 2. 대기 ========== -->
+  <section class="pane wait" id="pane-wait">
+    <div class="inner">
+      <div class="waitmark"><span class="pulse"></span><span id="wait-kicker">대기 중</span></div>
+      <h2 id="wait-title">선생님 화면을 보세요</h2>
+      <p class="lede" id="wait-body"></p>
+      <div id="wait-extra"></div>
+    </div>
+  </section>
+
+  <!-- ========== 3. 문항 ========== -->
+  <section class="pane q" id="pane-q">
+    <div class="inner" id="q-inner"></div>
+  </section>
+
+  <!-- ========== 4. 마무리 ========== -->
+  <section class="pane" id="pane-done">
+    <div class="inner">
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <span class="kicker">수고했습니다</span>
+        <h1>오늘 내가 고른 것들</h1>
+        <p class="lede">다음 시간 <b>격문 쓰기</b>에 그대로 쓰입니다. 7·8번에 적은 문장을 다시 읽어 보세요.</p>
+      </div>
+      <div class="mine" id="mine"></div>
+      <button class="btn ghost small" id="btn-copy">내 답변 전체 복사</button>
+      <p class="note" id="copy-msg"></p>
+    </div>
+  </section>
+</main>
+
+<p class="footnote" id="footnote"></p>
+
+<script>
+/* ===================================================================
+   농민 봉기 · 학생 화면
+   교사 화면(index.html)과 짝을 이루는 별도 파일입니다.
+   연동 규격: 프로젝트 문서 「교사 화면 ↔ 학생 화면 연동 규격」
+
+   데이터 구조 — /rooms/{방번호}
+     phase       : "join" | "intro" | "q1"…"q8" | "r1"…"r8" | "e1"…"e8" | "done"
+     active      : true / false
+     students/{uid}        : { name, no, joinedAt }
+     responses/q{n}/{uid}  : { choice: 0|1|2|3|null, reason, at }
+
+   ※ file:// 로 열면 익명 로그인이 동작하지 않습니다. 반드시 http(s)로 여세요.
+   =================================================================== */
+
+/* ── ① Firebase 설정 — 교사 화면과 반드시 같은 값 ───────────────── */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBX-jChqjYECdDWQvmz6oAy7EybU9EKvhw",
+  authDomain: "joseon-peasant-revolt.firebaseapp.com",
+  databaseURL: "https://joseon-peasant-revolt-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "joseon-peasant-revolt",
+  storageBucket: "joseon-peasant-revolt.firebasestorage.app",
+  messagingSenderId: "18621690175",
+  appId: "1:18621690175:web:6ce2c9d04f0e533703638a",
+  measurementId: "G-R36756TQDM"
+};
+const FIREBASE_SDK = "12.19.0";
+
+/* ── ② 수업 중 바꿀 만한 설정 ──────────────────────────────────── */
+const REQUIRE_REASON = true;   // 이유를 비워 두면 제출을 막습니다. false로 두면 허용.
+const MAX_REASON     = 2000;   // 보안 규칙과 같은 값이어야 합니다.
+const ALLOW_LATE     = true;   // 선생님이 다음 화면으로 넘어간 뒤에도 제출 허용.
+
+/* ── ③ 문항 — 교사 화면과 글자까지 같습니다 ────────────────────── */
+const QUESTIONS = {
+  1:{ setup:"세도 정치로 세상이 어수선하던 어느 날. 당신은 마을에서 몰래 돌던 책 한 권을 손에 넣었습니다. 조선 왕조가 망하고 정씨 왕조가 들어선다는 예언서, 『정감록』입니다.",
+      ask:"당신은 이 책을 어떻게 하겠습니까?" },
+  2:{ setup:"평안도. 조선 초기부터 이곳 사람들은 변경이라는 이유로 차별받았고, 관직에 나가기도 어려웠습니다. 과거에 여러 번 낙방한 몰락 양반 홍경래가 사람들을 모으고 있습니다.",
+      ask:"당신은 봉기에 합류하겠습니까?" },
+  3:{ setup:"봉기군은 한때 청천강 이북을 장악했습니다. 그러나 관군이 몰려와 정주성을 에워쌌습니다. 성문은 닫혔고, 식량은 줄고 있습니다.",
+      ask:"성 안의 당신은 무엇을 선택하겠습니까?" },
+  4:{ setup:"경주의 몰락 양반 최제우. 천주교(서학)가 빠르게 퍼지는 것을 보며, 이대로 두면 서양이 조선을 지배하게 될 것이라 걱정합니다. 그는 서학에 맞설 새로운 가르침을 세우려 합니다.",
+      ask:"최제우는 동학을 창시해야 할까요?" },
+  5:{ setup:"1862년 진주. 경상 우병사 백낙신이 불법으로 많은 세금을 거두고, 관청은 세금과 환곡을 집집마다 나누어 물리기로 결정했습니다. 몰락 양반 유계춘을 중심으로 농민들이 들고일어났습니다.",
+      ask:"당신은 어느 입장에 가장 동의합니까?",
+      subs:["질서와 세금 수취 체계를 지켜야 한다","임금과 나라에 대한 도리를 저버릴 수 없다","더는 견딜 수 없다, 지금 일어서야 한다","처벌이 두렵고, 성공할 것 같지도 않다"] },
+  6:{ setup:"봉기는 삼남 지방 70여 고을로 번졌습니다. 조정에 보고가 올라옵니다. “진주에서 시작된 불길이 전국으로 퍼지고 있습니다.”",
+      ask:"당신이 조정이라면 어떻게 하겠습니까?" },
+  7:{ setup:"당신은 진주의 농민입니다. 관아는 무너졌고, 이제 정부에 요구를 전할 차례입니다.",
+      ask:"정부에 무엇을 요구하겠습니까? 그리고 왜 그것을 요구합니까?",
+      writein:"<b>쓸 때 이렇게</b> — 요구 한 줄 + 그렇게 요구하는 이유 한 줄.<br><b>힌트</b> — 삼정: 전정(토지에 매기는 세금) · 군정(군역 대신 내는 세금) · 환곡(봄에 빌려주고 가을에 갚는 곡식). 꼭 삼정에서 고를 필요는 없어요." },
+  8:{ setup:"5번에서 여러분은 네 입장 중 하나를 골랐습니다. 이번에는 반대편에 서 볼 차례입니다.",
+      ask:"세도 정권 · 유학자 · 소극적인 농민 중 하나를 골라, 그 주장을 정확히 요약한 뒤 반박하세요.",
+      writein:"<b>순서</b> — ① 상대 주장을 그대로 옮긴다 → ② 그 근거를 짚는다 → ③ 빈틈을 찌른다.<br><b>주의</b> — “그냥 틀렸다”는 반박이 아닙니다. 상대를 가장 그럴듯한 형태로 옮긴 다음에 반박해야 힘이 실립니다." }
+};
+const OPTIONS = {
+  1:["믿고 이웃에게 퍼뜨린다","반신반의하며 지켜본다","헛소문이라 여기고 무시한다"],
+  2:["합류한다","합류하지 않는다"],
+  3:["끝까지 저항한다","성을 빠져나가 도주한다","항복한다"],
+  4:["창시한다","창시하지 않는다"],
+  5:["세도 정권 · 지방관","유학자","참여하는 농민","소극적인 농민"],
+  6:["군대를 보내 진압한다","삼정이정청을 세워 개혁한다"],
+  7:null, 8:null
+};
+const OPTKEYS = {
+  1:["①","②","③"], 2:["찬성","반대"], 3:["①","②","③"],
+  4:["찬성","반대"], 5:["①","②","③","④"], 6:["찬성","반대"]
+};
+const REASON_LABEL = {
+  choice:"왜 그렇게 골랐나요?",
+  essay:"답변을 적어 주세요"
+};
+
+/* ===================================================================
+   상태
+   =================================================================== */
+const S = {
+  room:"", uid:"", name:"", no:null,
+  phase:null, active:true,
+  conn:"연결 확인 중…", connClass:"",
+  joined:false,
+  manual:null,        // 학생이 직접 고른 문항 번호 (선생님 화면을 못 따라갈 때)
+  roomMissing:false, connErr:"",
+  answers:{},         // {1:{choice,reason}, …}  — 제출 완료본
+  drafts:{},          // {1:{choice,reason}, …}  — 작성 중
+  busy:false, msg:""
+};
+let FB = null;        // {M, db, auth}
+
+/* ── 로컬 저장 — 새로고침·잠금화면에서 돌아와도 이어서 ─────────── */
+function lsKey(){ return "nongmin.stu.v1." + (S.room || "noroom"); }
+function saveLocal(){
+  try{
+    localStorage.setItem(lsKey(), JSON.stringify({
+      name:S.name, no:S.no, joined:S.joined, answers:S.answers, drafts:S.drafts
+    }));
+  }catch(e){}
+}
+function loadLocal(room){
+  try{
+    const raw = localStorage.getItem("nongmin.stu.v1." + room);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){ return null; }
+}
+
+/* ===================================================================
+   화면 전환
+   =================================================================== */
+const panes = {
+  join: document.getElementById("pane-join"),
+  wait: document.getElementById("pane-wait"),
+  q:    document.getElementById("pane-q"),
+  done: document.getElementById("pane-done")
+};
+function show(which){
+  for(const k in panes) panes[k].classList.toggle("on", k===which);
+  document.getElementById("topbar").hidden = !S.joined;
+  const dark = (which==="q");
+  document.body.classList.toggle("qmode", dark);
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", dark ? "#16302C" : "#E9EFEC");
+}
+function esc(s){
+  return String(s==null?"":s).replace(/[&<>"']/g, c=>(
+    {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function paintTop(){
+  const who = document.getElementById("who");
+  who.innerHTML = esc(S.name) + ' <span>' + esc(S.no) + '번 · 방 ' + esc(S.room) + '</span>';
+  const dot = document.getElementById("conn");
+  dot.textContent = S.conn;
+  dot.className = "dot " + S.connClass;
+}
+function setConn(text, cls){ S.conn=text; S.connClass=cls||""; if(S.joined) paintTop(); }
+
+/* phase 문자열 해석 */
+function parsePhase(p){
+  if(!p) return {kind:"join"};
+  const m = /^([qre])([1-8])$/.exec(p);
+  if(m) return {kind:m[1], no:Number(m[2])};
+  if(p==="done") return {kind:"done"};
+  if(p==="intro") return {kind:"intro"};
+  return {kind:"join"};
+}
+
+/* ===================================================================
+   렌더 — phase 를 학생 화면으로 옮기는 곳
+   =================================================================== */
+function render(){
+  if(!S.joined){ show("join"); return; }
+  paintTop();
+
+  const ph = parsePhase(S.phase);
+
+  // 학생이 직접 고른 문항이 있으면 그쪽을 먼저 보여 준다
+  if(S.manual){ renderQ(S.manual, "manual"); show("q"); return; }
+
+  if(S.active === false || ph.kind==="done"){ renderDone(); show("done"); return; }
+
+  if(ph.kind==="q"){ renderQ(ph.no, "live"); show("q"); return; }
+
+  if(ph.kind==="r" || ph.kind==="e"){
+    // 아직 제출하지 않았다면 늦게라도 낼 수 있게 문항을 그대로 둔다
+    if(ALLOW_LATE && !S.answers[ph.no]){ renderQ(ph.no, "late"); show("q"); return; }
+    renderWait(ph.kind, ph.no); show("wait"); return;
+  }
+
+  renderWait(ph.kind, null); show("wait");
+}
+
+/* ── 대기 화면 ──────────────────────────────────────────────── */
+function renderWait(kind, no){
+  const k = document.getElementById("wait-kicker");
+  const t = document.getElementById("wait-title");
+  const b = document.getElementById("wait-body");
+  const x = document.getElementById("wait-extra");
+
+  if(kind==="r"){
+    k.textContent = "제출 완료";
+    t.textContent = no + "번 · 결과를 함께 보는 중";
+    b.textContent = "선생님 화면에 우리 반의 선택이 떠 있어요. 내가 적은 이유도 함께 나옵니다.";
+    x.innerHTML = myAnswerCardHTML(no);
+  } else if(kind==="e"){
+    k.textContent = "해설 중";
+    t.textContent = no + "번 · 선생님 설명을 듣는 중";
+    b.textContent = "화면을 내려두고 앞을 보세요. 다음 문항이 시작되면 이 화면이 저절로 바뀝니다.";
+    x.innerHTML = "";
+  } else if(kind==="intro"){
+    k.textContent = "곧 시작";
+    t.textContent = "도입 · 곧 첫 문항이 나옵니다";
+    b.textContent = "선생님 화면을 보세요. 첫 문항이 시작되면 이 화면이 저절로 바뀝니다.";
+    x.innerHTML = "";
+  } else {
+    k.textContent = "참여 완료";
+    t.textContent = "들어왔습니다. 잠시만 기다리세요";
+    b.textContent = "선생님이 수업을 시작하면 이 화면이 저절로 바뀝니다. 이 페이지를 닫지 마세요.";
+    x.innerHTML = "";
+  }
+
+  if(S.roomMissing && S.phase == null){
+    k.textContent = "방을 찾지 못함";
+    t.textContent = "이 번호로 열린 수업이 없습니다";
+    b.textContent = "칠판의 방 번호를 다시 확인해 주세요. 번호가 맞는데도 이 화면이 계속 나오면 선생님께 알리세요.";
+    x.innerHTML = '<button class="btn small ghost" style="margin-top:4px" data-act="reroom">방 번호 다시 넣기</button>';
+    return;
+  }
+
+  // 아직 못 낸 문항이 있으면 돌아갈 길을 열어 둔다
+  const missed = [1,2,3,4,5,6,7,8].filter(n => !S.answers[n] && everSeen(n));
+  if(missed.length){
+    x.innerHTML += '<p class="note" style="margin-top:14px">아직 제출하지 않은 문항: ' +
+      missed.map(n=>'<button class="linkbtn" data-goto="'+n+'">'+n+'번</button>').join(" · ") + '</p>';
+  }
+}
+/* 이미 지나간 문항인지 — 수업이 그 문항을 지났으면 true */
+function everSeen(n){
+  const ph = parsePhase(S.phase);
+  if(ph.kind==="done") return true;
+  if(!ph.no) return false;
+  return ph.no > n || (ph.no === n && (ph.kind==="r" || ph.kind==="e"));
+}
+
+function myAnswerCardHTML(n){
+  const a = S.answers[n];
+  if(!a) return "";
+  const opts = OPTIONS[n];
+  const label = (opts && a.choice!=null) ? opts[a.choice] : null;
+  return '<div class="card" style="margin-top:14px;gap:7px">' +
+    '<span class="kicker">내가 낸 답</span>' +
+    (label ? '<p style="font-size:16px;font-weight:500">'+esc(label)+'</p>' : "") +
+    (a.reason ? '<p style="font-size:14px;line-height:1.75;white-space:pre-wrap">'+esc(a.reason)+'</p>' : "") +
+  '</div>';
+}
+
+/* ── 문항 화면 ──────────────────────────────────────────────── */
+function renderQ(n, mode){
+  const q = QUESTIONS[n], opts = OPTIONS[n], keys = OPTKEYS[n];
+  const kind = opts ? "choice" : "essay";
+  const submitted = S.answers[n];
+  const d = S.drafts[n] || (S.drafts[n] = {
+    choice: submitted ? submitted.choice : null,
+    reason: submitted ? submitted.reason : ""
+  });
+
+  const tail = submitted ? " · 제출 완료"
+             : mode==="late" ? " · 아직 제출 전"
+             : mode==="manual" ? " · 직접 이동" : " · 내 차례";
+  let head = '<span class="qno">문항 ' + String(n).padStart(2,"0") + tail + '</span>';
+
+  let banner = "";
+  if(mode==="late"){
+    banner = '<div class="latebox">선생님 화면은 다음으로 넘어갔어요. <b>지금 제출해도 반영됩니다.</b></div>';
+  } else if(mode==="manual"){
+    banner = '<div class="latebox">직접 고른 문항입니다. ' +
+             '<button class="linkbtn" data-goto="live" style="color:inherit">선생님 화면 따라가기로 돌아가기</button></div>';
+  }
+
+  let body = "";
+  if(kind==="choice"){
+    body = '<div class="opts">' + opts.map((o,k)=>
+      '<button class="opt" type="button" data-pick="'+k+'" aria-pressed="'+(d.choice===k)+'">' +
+        '<span class="k">'+esc(keys[k])+'</span>' +
+        '<span class="t">'+esc(o) + (q.subs ? '<small>'+esc(q.subs[k])+'</small>' : "") + '</span>' +
+      '</button>').join("") + '</div>';
+  } else {
+    body = '<div class="writein">'+q.writein+'</div>';
+  }
+
+  const over = d.reason.length > MAX_REASON;
+  const reasonBlock =
+    '<div class="reason">' +
+      '<span class="rlabel"><label for="ta">'+REASON_LABEL[kind]+'</label>' +
+        '<span class="counter '+(over?"over":"")+'" id="cnt">'+d.reason.length+' / '+MAX_REASON+'</span></span>' +
+      '<textarea id="ta" class="'+(kind==="essay"?"tall":"")+'" ' +
+        'placeholder="'+(kind==="choice"?"한두 문장이면 충분해요.":"문장으로 적어 주세요.")+'">'+esc(d.reason)+'</textarea>' +
+    '</div>';
+
+  const btnLabel = submitted ? "수정해서 다시 제출" : "제출하기";
+
+  document.getElementById("q-inner").innerHTML =
+    head +
+    banner +
+    '<p class="setup">'+esc(q.setup)+'</p>' +
+    '<p class="ask">'+esc(q.ask)+'</p>' +
+    body +
+    reasonBlock +
+    '<div class="submitrow">' +
+      '<button class="btn go" id="btn-submit">'+btnLabel+'</button>' +
+      '<p class="msg" id="q-msg">'+esc(S.msg)+'</p>' +
+    '</div>';
+
+  const ta = document.getElementById("ta");
+  ta.addEventListener("input", ()=>{
+    d.reason = ta.value;
+    const c = document.getElementById("cnt");
+    c.textContent = d.reason.length + " / " + MAX_REASON;
+    c.classList.toggle("over", d.reason.length > MAX_REASON);
+    saveLocal();
+  });
+  document.getElementById("q-inner").querySelectorAll("[data-pick]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      d.choice = Number(b.dataset.pick);
+      document.getElementById("q-inner").querySelectorAll("[data-pick]").forEach(x=>
+        x.setAttribute("aria-pressed", String(Number(x.dataset.pick)===d.choice)));
+      S.msg=""; document.getElementById("q-msg").textContent="";
+      saveLocal();
+    });
+  });
+  document.getElementById("btn-submit").addEventListener("click", ()=>submit(n, kind));
+}
+
+/* ── 마무리 화면 ────────────────────────────────────────────── */
+function renderDone(){
+  const box = document.getElementById("mine");
+  box.innerHTML = [1,2,3,4,5,6,7,8].map(n=>{
+    const a = S.answers[n];
+    const q = QUESTIONS[n];
+    const opts = OPTIONS[n];
+    if(!a){
+      return '<div class="mrow empty"><span class="mn">'+String(n).padStart(2,"0")+'</span>' +
+             '<span class="mq">'+esc(q.ask)+'</span>' +
+             '<span class="mc">제출하지 않음</span></div>';
+    }
+    const label = (opts && a.choice!=null) ? opts[a.choice] : null;
+    return '<div class="mrow"><span class="mn">'+String(n).padStart(2,"0")+'</span>' +
+           '<span class="mq">'+esc(q.ask)+'</span>' +
+           (label ? '<span class="mc">'+esc(label)+'</span>' : "") +
+           (a.reason ? '<span class="mr">'+esc(a.reason)+'</span>' : "") +
+           '</div>';
+  }).join("");
+}
+
+/* ===================================================================
+   제출
+   =================================================================== */
+async function submit(n, kind){
+  const d = S.drafts[n] || {choice:null, reason:""};
+  const msg = document.getElementById("q-msg");
+  const setMsg = t => { S.msg = t; if(msg) msg.textContent = t; };
+
+  if(kind==="choice" && d.choice==null){ setMsg("먼저 하나를 고르세요."); return; }
+  if(REQUIRE_REASON && !d.reason.trim()){
+    setMsg(kind==="choice" ? "왜 그렇게 골랐는지 한 줄이라도 적어 주세요." : "답변을 적어 주세요.");
+    return;
+  }
+  if(d.reason.length > MAX_REASON){ setMsg("글자 수를 "+MAX_REASON+"자 이하로 줄여 주세요."); return; }
+
+  const btn = document.getElementById("btn-submit");
+  btn.disabled = true; setMsg("보내는 중…");
+
+  const payload = {
+    choice: kind==="choice" ? d.choice : null,
+    reason: d.reason.trim()
+  };
+
+  try{
+    if(FB){
+      const {ref, set, serverTimestamp} = FB.M;
+      await set(ref(FB.db, "rooms/"+S.room+"/responses/q"+n+"/"+S.uid),
+                {choice: payload.choice, reason: payload.reason, at: serverTimestamp()});
+    }
+    S.answers[n] = payload;
+    saveLocal();
+    setMsg("");
+    S.manual = null;
+    render();
+  }catch(e){
+    btn.disabled = false;
+    setMsg("보내지 못했습니다. 잠시 뒤 다시 눌러 주세요. (" + (e && (e.message||e.code) || e) + ")");
+  }
+}
+
+/* ===================================================================
+   Firebase 연결
+   =================================================================== */
+async function connect(){
+  if(!FIREBASE_CONFIG || !FIREBASE_CONFIG.databaseURL){
+    setConn("연습 모드", "demo");
+    return false;
+  }
+  try{
+    const base = "https://www.gstatic.com/firebasejs/" + FIREBASE_SDK + "/";
+    const [appM, authM, dbM] = await Promise.all([
+      import(base + "firebase-app.js"),
+      import(base + "firebase-auth.js"),
+      import(base + "firebase-database.js")
+    ]);
+    const app  = appM.initializeApp(FIREBASE_CONFIG);
+    const auth = authM.getAuth(app);
+    const cred = await authM.signInAnonymously(auth);
+    FB = { M: dbM, db: dbM.getDatabase(app), uid: cred.user.uid };
+    S.uid = cred.user.uid;
+    setConn("연결됨", "ok");
+    return true;
+  }catch(e){
+    setConn("연결 실패", "bad");
+    S.connErr = (e && (e.message || e.code)) ? String(e.message || e.code) : String(e);
+    const err = document.getElementById("join-err");
+    if(err) err.textContent = "선생님 서버에 연결하지 못했습니다. 인터넷을 확인하고 새로고침해 주세요. (" + S.connErr + ")";
+    return false;
+  }
+}
+
+async function joinRoom(){
+  if(!FB){ S.joined = true; S.phase = S.phase || "join"; saveLocal(); render(); return; }
+  const {ref, set, update, onValue, serverTimestamp} = FB.M;
+
+  const mine = ref(FB.db, "rooms/"+S.room+"/students/"+S.uid);
+  const prev = loadLocal(S.room);
+  // 이미 들어왔던 학생이면 joinedAt 을 건드리지 않는다 (교사 화면 정렬이 흐트러지지 않게)
+  if(prev && prev.joined) await update(mine, { name:S.name, no:S.no });
+  else                    await set(mine, { name:S.name, no:S.no, joinedAt: serverTimestamp() });
+
+  S.joined = true; saveLocal();
+
+  onValue(ref(FB.db, "rooms/"+S.room+"/phase"), snap=>{
+    const v = snap.val();
+    if(v != null) S.roomMissing = false;
+    if(v !== S.phase){ S.phase = v; S.manual = null; S.msg=""; render(); }
+    setConn("연결됨", "ok");
+  }, err=>{
+    setConn("동기화 오류", "bad");
+    showSyncError(err);
+  });
+
+  onValue(ref(FB.db, "rooms/"+S.room+"/active"), snap=>{
+    const v = snap.val();
+    S.active = (v === null || v === undefined) ? true : v;
+    render();
+  }, ()=>{});
+
+  // 방 번호를 잘못 넣으면 phase 가 끝내 비어 있습니다 — 조용히 기다리지 않게 알려 줍니다
+  setTimeout(()=>{
+    if(S.joined && S.phase == null){ S.roomMissing = true; render(); }
+  }, 4000);
+
+  render();
+}
+
+function showSyncError(err){
+  const x = document.getElementById("wait-extra");
+  if(!x) return;
+  x.innerHTML = '<div class="warnbox" style="margin-top:14px">선생님 화면과 자동으로 맞추지 못하고 있습니다. ' +
+    '아래에서 <b>지금 진행 중인 문항</b>을 직접 골라 제출하세요.<br><span style="font-size:11.5px;color:var(--muted)">' +
+    esc(err && (err.message||err.code) || "") + '</span></div>' +
+    '<p class="note" style="margin-top:10px">' +
+    [1,2,3,4,5,6,7,8].map(n=>'<button class="linkbtn" data-goto="'+n+'">'+n+'번</button>').join(" · ") +
+    '</p>';
+}
+
+/* ===================================================================
+   참여 화면 동작
+   =================================================================== */
+function urlRoom(){
+  const v = new URLSearchParams(location.search).get("room");
+  return v ? v.replace(/\D/g,"").slice(0,6) : "";
+}
+
+(function initJoinScreen(){
+  const inRoom = document.getElementById("in-room");
+  const inNo   = document.getElementById("in-no");
+  const inName = document.getElementById("in-name");
+  const err    = document.getElementById("join-err");
+
+  const fromUrl = urlRoom();
+  if(fromUrl){
+    inRoom.value = fromUrl;
+    document.getElementById("room-field").hidden = true;   // QR로 들어온 학생은 번호를 볼 필요가 없다
+  }
+  const prev = loadLocal(fromUrl || "");
+  if(prev){
+    if(prev.name) inName.value = prev.name;
+    if(prev.no!=null) inNo.value = prev.no;
+  }
+  inRoom.addEventListener("input", ()=>{ inRoom.value = inRoom.value.replace(/\D/g,"").slice(0,6); });
+  inNo.addEventListener("input", ()=>{ inNo.value = inNo.value.replace(/\D/g,"").slice(0,2); });
+
+  document.getElementById("btn-join").addEventListener("click", async ()=>{
+    const room = inRoom.value.trim();
+    const no   = inNo.value.trim();
+    const name = inName.value.trim();
+    err.textContent = "";
+
+    if(!/^\d{6}$/.test(room)){ err.textContent = "방 번호 여섯 자리를 정확히 넣어 주세요."; inRoom.focus(); return; }
+    if(!/^\d{1,2}$/.test(no)){ err.textContent = "출석번호를 숫자로 넣어 주세요."; inNo.focus(); return; }
+    if(name.length < 2){ err.textContent = "이름을 출석부와 똑같이 적어 주세요."; inName.focus(); return; }
+
+    S.room = room; S.no = Number(no); S.name = name;
+
+    const saved = loadLocal(room);
+    if(saved){
+      S.answers = saved.answers || {};
+      S.drafts  = saved.drafts  || {};
+      S.joined  = !!saved.joined;
+    }
+
+    const btn = document.getElementById("btn-join");
+    btn.disabled = true; btn.textContent = "들어가는 중…";
+    try{
+      await joinRoom();
+    }catch(e){
+      btn.disabled = false; btn.textContent = "참여하기";
+      const m = (e && (e.message||e.code)) ? String(e.message||e.code) : String(e);
+      err.textContent = "참여하지 못했습니다. 방 번호를 다시 확인해 주세요. (" + m + ")";
+    }
+  });
+
+  [inRoom, inNo, inName].forEach(el=>el.addEventListener("keydown", e=>{
+    if(e.key==="Enter") document.getElementById("btn-join").click();
+  }));
+})();
+
+/* 방 번호 다시 넣기 */
+document.addEventListener("click", e=>{
+  if(!e.target.closest('[data-act="reroom"]')) return;
+  S.joined = false; S.roomMissing = false; S.phase = null;
+  document.getElementById("room-field").hidden = false;
+  document.getElementById("in-room").value = "";
+  const jb = document.getElementById("btn-join");
+  jb.disabled = false; jb.textContent = "참여하기";
+  show("join");
+  document.getElementById("in-room").focus();
+});
+
+/* 문항 직접 이동 (대기 화면·오류 안내의 링크) */
+document.addEventListener("click", e=>{
+  const t = e.target.closest("[data-goto]");
+  if(!t) return;
+  const v = t.dataset.goto;
+  S.manual = (v==="live") ? null : Number(v);
+  S.msg = "";
+  render();
+});
+
+/* 화면이 다시 켜졌을 때 최신 phase 를 확실히 반영 */
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) render(); });
+
+/* ===================================================================
+   내 답변 복사
+   =================================================================== */
+document.getElementById("btn-copy").addEventListener("click", async ()=>{
+  const lines = [S.no + "번 " + S.name, ""];
+  [1,2,3,4,5,6,7,8].forEach(n=>{
+    const a = S.answers[n], q = QUESTIONS[n], opts = OPTIONS[n];
+    lines.push("[" + n + "] " + q.ask);
+    if(!a){ lines.push("  (제출하지 않음)"); }
+    else{
+      if(opts && a.choice!=null) lines.push("  선택: " + opts[a.choice]);
+      if(a.reason) lines.push("  " + a.reason.replace(/\n/g,"\n  "));
+    }
+    lines.push("");
+  });
+  const text = lines.join("\n");
+  const msg = document.getElementById("copy-msg");
+  try{
+    await navigator.clipboard.writeText(text);
+    msg.textContent = "복사했습니다. 메모장이나 문서에 붙여 넣으세요.";
+  }catch(e){
+    msg.textContent = "복사가 막혀 있습니다. 아래 글을 길게 눌러 직접 복사하세요.";
+    const pre = document.createElement("textarea");
+    pre.value = text;
+    pre.style.cssText = "width:100%;min-height:220px;margin-top:10px;font:300 13px/1.6 var(--body);" +
+      "border:1px solid var(--line-strong);border-radius:5px;padding:12px;background:var(--surface);color:var(--ink)";
+    msg.after(pre);
+  }
+});
+
+/* ===================================================================
+   시작
+   =================================================================== */
+(async function boot(){
+  document.getElementById("footnote").textContent =
+    "중3 역사 · 사회 변화와 농민의 봉기 — 미래엔 『역사 ②』 156~157쪽";
+
+  if(location.protocol === "file:"){
+    document.getElementById("join-err").textContent =
+      "이 파일을 내려받아 직접 열면 참여할 수 없습니다. 선생님이 알려 준 주소(QR)로 들어오세요.";
+  }
+
+  await connect();
+
+  // 새로고침·잠금화면 복귀 — 이미 들어온 방이면 바로 이어서
+  const room = urlRoom();
+  const prev = room ? loadLocal(room) : null;
+  if(room && prev && prev.joined && prev.name){
+    S.room = room; S.name = prev.name; S.no = prev.no;
+    S.answers = prev.answers || {}; S.drafts = prev.drafts || {};
+    try{ await joinRoom(); return; }catch(e){}
+  }
+  render();
+})();
+</script>
+</body>
+</html>
